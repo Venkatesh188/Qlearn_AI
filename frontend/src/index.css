@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Scrollbar Customization */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-600;
+  }
+
+  /* Selection Colors */
+  ::selection {
+    @apply bg-primary/20 text-navy;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background-light dark:bg-navy text-text-primary dark:text-text-dark antialiased transition-colors duration-300;
+  }
+}
+
+/* Custom Utilities for Glassmorphism if needed beyond inline classes */
+@layer components {
+    .glass-card {
+        @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/50 dark:border-white/10;
+    }
+}
+
+/* From the old index.html <style> block: fonts + 3D flip utilities used by InteractiveFlashcard */
+body { font-family: 'Inter', sans-serif; background-color: #F9F8F6; color: #2D2A26; }
+h1, h2, h3, h4, h5, h6 { font-family: 'Lexend', 'Inter', sans-serif; }
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
