@@ -6,6 +6,7 @@ import base64
 import hashlib
 import json
 import logging
+import os
 import uuid
 from typing import Literal
 
@@ -24,7 +25,7 @@ from app.sse import sse
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Qlearn prototype")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", *filter(None, os.getenv("CORS_ORIGINS", "").split(","))],
                    allow_methods=["*"], allow_headers=["*"])
 
 

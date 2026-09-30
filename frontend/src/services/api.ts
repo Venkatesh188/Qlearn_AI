@@ -36,8 +36,11 @@ async function httpError(res: Response): Promise<HttpError> {
   return new HttpError(typeof msg === 'string' ? msg : JSON.stringify(msg), res.status);
 }
 
+// Empty locally (Vite proxies /api). Set VITE_API_URL when the backend is a separate deployment.
+const API = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, init);
+  const res = await fetch(API + path, init);
   if (!res.ok) throw await httpError(res);
   return res.status === 204 ? (undefined as T) : res.json();
 }
@@ -69,7 +72,7 @@ export interface ChatMsg { role: 'user' | 'assistant'; content: string }
 
 /** Stream the tutor's reply (text/plain) chunk by chunk; resolves when the stream ends. */
 export async function tutorChat(id: string, lessonId: string, messages: ChatMsg[], onChunk: (t: string) => void, signal?: AbortSignal) {
-  const res = await fetch(`/api/courses/${id}/lessons/${lessonId}/tutor`, { ...json({ messages: messages.slice(-20) }), signal });
+  const res = await fetch(`${API}/api/courses/${id}/lessons/${lessonId}/tutor`, { ...json({ messages: messages.slice(-20) }), signal });
   if (!res.ok) throw await httpError(res);
   if (!res.body) return onChunk(await res.text());
   const reader = res.body.getReader();
@@ -109,7 +112,7 @@ export function watchGeneration(id: string, onEvent: (e: GenEvent) => void): () 
 
   (async () => {
     try {
-      const res = await fetch(`/api/generate/${id}/stream`, { signal: ctrl.signal });
+      const res = await fetch(`${API}/api/generate/${id}/stream`, { signal: ctrl.signal });
       if (!res.ok || !res.body) throw new Error('no stream');
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
