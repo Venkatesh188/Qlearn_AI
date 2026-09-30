@@ -25,7 +25,9 @@ from app.sse import sse
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Qlearn prototype")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", *filter(None, os.getenv("CORS_ORIGINS", "").split(","))],
+# Browsers send the origin without a trailing slash, so normalize what's configured.
+_CORS = os.getenv("CORS_ORIGINS", "https://frontend-green-two-23.vercel.app")
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", *(o.strip().rstrip("/") for o in _CORS.split(",") if o.strip())],
                    allow_methods=["*"], allow_headers=["*"])
 
 
