@@ -135,7 +135,12 @@ def _sb_save(course: dict) -> None:
     _check(_http.post("/courses", json=_to_row(course, _COURSE_COLS), headers=upsert))
     # ponytail: re-upserts every lesson on each save (one request, ~10 rows). Fine at course scale;
     # track dirty lessons if lesson payloads get large.
-    lessons = [_to_row({**l, "course_id": course["id"]}, _LESSON_COLS) for l in course.get("lessons", [])]
+    # PostgREST rejects a bulk upsert unless every row has the same keys, and lessons loaded from
+    # the DB carry created_at/template while freshly generated ones don't. So: every column,
+    # always, minus created_at (left out → default on insert, untouched on update).
+    cols = sorted(_LESSON_COLS - {"created_at"})
+    lessons = [{**{k: l.get(k) for k in cols}, "course_id": course["id"],
+                "extra": _to_row(l, _LESSON_COLS)["extra"]} for l in course.get("lessons", [])]
     if lessons:
         _check(_http.post("/lessons", json=lessons, headers=upsert))
 
